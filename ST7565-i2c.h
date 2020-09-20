@@ -28,7 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  #include "WProgram.h"
 #endif
 
-#define swap(a, b) { uint8_t t = a; a = b; b = t; }
+#define st_swap(a, b) { uint8_t t = a; a = b; b = t; }
 
 #define BLACK 1
 #define WHITE 0

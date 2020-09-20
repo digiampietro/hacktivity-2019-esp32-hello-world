@@ -3,12 +3,19 @@
 #include "ERC12864-10-display.h"
 #include "ST7565-i2c.h"
 
+// Network SSID and password
+//#include "wifiinfo.h"
+
+// Needed for OTA setup
+#include "ota.h"
+
 #define MYLED 21
 #define SAMD_ADDR     0x30
 #define PIN_I2C_INT  25
 #define PIN_SDA      23
 #define PIN_SCL      22
 
+#define MY_HOSTNAME "hacktivity2019"
 
 ST7565 glcd(DISP_CMD_ADDR, DISP_DAT_ADDR);
 
@@ -27,6 +34,13 @@ bool btnRight  = LOW;
 const static unsigned char __attribute__ ((progmem)) logo16_glcd_bmp[]={
 0x30, 0xf0, 0xf0, 0xf0, 0xf0, 0x30, 0xf8, 0xbe, 0x9f, 0xff, 0xf8, 0xc0, 0xc0, 0xc0, 0x80, 0x00, 
 0x20, 0x3c, 0x3f, 0x3f, 0x1f, 0x19, 0x1f, 0x7b, 0xfb, 0xfe, 0xfe, 0x07, 0x07, 0x07, 0x03, 0x00, };
+
+
+// print dots during the Wifi Connection phase
+
+void myProgress () {
+     Serial.print(".");
+}
 
 
 void readSamd(void) {
@@ -183,6 +197,8 @@ void setup() {
   Serial.println("ESP32 Starting");
   delay(500);
 
+
+
   pinMode(PIN_I2C_INT, INPUT);
 
   Wire.begin(PIN_SDA, PIN_SCL);
@@ -258,40 +274,52 @@ void setup() {
   glcd.clear();
 
   // draw a bitmap icon and 'animate' movement
-  testdrawbitmap(logo16_glcd_bmp, LOGO16_GLCD_HEIGHT, LOGO16_GLCD_WIDTH);
+  // testdrawbitmap(logo16_glcd_bmp, LOGO16_GLCD_HEIGHT, LOGO16_GLCD_WIDTH);
+
+  // ------ setup WiFi
+  setupWifi(MY_HOSTNAME,&myProgress);
+  Serial.println(" ");
+  Serial.print("Connected! IP: ");
+  Serial.println(WiFi.localIP());
+  // ------------------------------
+
 
 }
 
-int cycle = 0;
+int     cycle      = 0;
+uint8_t currled    = 0;
+int     lastmillis = 0;
 
 void loop() {
   int     li;
   uint8_t col;
-  uint8_t currled;
 
-  Serial.println("");
-  currled = cycle % 6;
-  col     = cycle % 3;
-  readSamd();
-  if (btnDown)  col=0;   // Red color
-  if (btnExit)  col=1;   // Blue color
-  if (btnEnter) col=2;   // Green color
-  if (digitalRead(PIN_I2C_INT) == HIGH ) {
-    Serial.print("Led: ");
-    Serial.print(currled);
-    Serial.print(" Color: ");
-    Serial.println(col); 
-    if ( col == 0) setLed(currled,1,0,0);
-    if ( col == 1) setLed(currled,0,1,0);
-    if ( col == 2) setLed(currled,0,0,1);
-    if (btnRight) buzz();
-    if (btnUp)    setBl(0); else setBl(250); 
-  } else {
-    Serial.println("PIN_I2C_INT is disabled");   
+  ArduinoOTA.handle();
+  if ((millis() - lastmillis) > 200) {
+    lastmillis = millis();
+    if (not btnLeft) setLed(currled,0,0,0);
+    Serial.println("");
+    currled = cycle % 6;
+    col     = cycle % 3;
+    readSamd();
+    if (btnDown)  col=0;   // Red color
+    if (btnExit)  col=1;   // Blue color
+    if (btnEnter) col=2;   // Green color
+    if (digitalRead(PIN_I2C_INT) == HIGH ) {
+      Serial.print("Led: ");
+      Serial.print(currled);
+      Serial.print(" Color: ");
+      Serial.println(col); 
+      if ( col == 0) setLed(currled,1,0,0);
+      if ( col == 1) setLed(currled,0,1,0);
+      if ( col == 2) setLed(currled,0,0,1);
+      if (btnRight) buzz();
+      if (btnUp)    setBl(0); else setBl(250); 
+    } else {
+      Serial.println("PIN_I2C_INT is disabled");   
+    }
+    cycle++;
   }
-  cycle++;
-  delay(200);
-  if (not btnLeft) setLed(currled,0,0,0);
 }
 
 

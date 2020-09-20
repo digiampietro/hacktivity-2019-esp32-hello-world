@@ -67,10 +67,10 @@
 
 MAKE_DIR   := $(PWD)
 #
-# ----- setup wor Wemos D1 mini -----
+# ----- setup wor ESP32
 FQBN       ?= esp32:esp32:esp32
 IOT_NAME   ?= hacktivity
-OTA_PORT   ?= 8266
+OTA_PORT   ?= 3232
 OTA_PASS   ?=
 # ----- setup for Arduino Uno
 #FQBN        ?= arduino:avr:uno
