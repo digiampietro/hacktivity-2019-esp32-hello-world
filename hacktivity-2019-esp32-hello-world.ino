@@ -3,14 +3,11 @@
 #include "ERC12864-10-display.h"
 #include "ST7565-i2c.h"
 
-// Network SSID and password
-//#include "wifiinfo.h"
-
 // Needed for OTA setup
 #include "ota.h"
 
-#define MYLED 21
-#define SAMD_ADDR     0x30
+#define MYLED        21
+#define SAMD_ADDR    0x30
 #define PIN_I2C_INT  25
 #define PIN_SDA      23
 #define PIN_SCL      22
@@ -39,7 +36,7 @@ const static unsigned char __attribute__ ((progmem)) logo16_glcd_bmp[]={
 // print dots during the Wifi Connection phase
 
 void myProgress () {
-     Serial.print(".");
+  //  Serial.print(".");
 }
 
 
@@ -189,46 +186,100 @@ void setLed(uint8_t id, uint8_t r, uint8_t g, uint8_t b) {
   }    
 }
 
+void waitKey(void) {
+  char  c;
+  while (Serial.available() <= 0) {
+    //Serial.print(".");
+  }
+  Serial.println(".");
+    // read the incoming byte:
+  c = Serial.read();
+}
+
+void waitMsg(char msg[]) {
+  Serial.print(msg);
+  Serial.print(" - press a Key ");
+  waitKey();
+}
+
 void setup() {
+  int i, j;
+  char s[100];
   // put your setup code here, to run once:
   pinMode(MYLED, OUTPUT);
   Serial.begin(115200);
   delay(100);
+  waitKey();
   Serial.println("ESP32 Starting");
-  delay(500);
-
-
 
   pinMode(PIN_I2C_INT, INPUT);
-
   Wire.begin(PIN_SDA, PIN_SCL);
+  
   // i2cScan();
-  Serial.println("dispInit");
+  // Serial.println("dispInit");
   //dispInit();
+  waitMsg("ledOff;setBl");
   ledOff();
   setBl(250);
-  delay(3000);
 
-   // initialize and set the contrast to 0x18
+  // initialize and set the contrast to 0x18
+  waitMsg("glcd.ic2begin");
   glcd.i2cbegin(0x18);
-
-  Serial.println("glcd.display");
+  
+  Serial.println("glcd.display, press a key");
+  waitKey();
   glcd.display(); // show splashscreen
-  delay(2000);
+
+  waitMsg("glcd.clear");
   glcd.clear();
+
+  waitMsg("glcd.drawstring(0, 0, \"0123456789\")");
   glcd.drawstring(0, 0, "0123456789");
+
+  waitMsg("glcd.display()");
   glcd.display();
   delay(2000);
+
+  waitMsg("glcd.drawstring at rows 1, 4, and 7");
   glcd.drawstring(0, 1, "-1 abcdefghijklmnoprstuvwxyz");
   glcd.drawstring(0, 4, "-4 abcdefghijklmnoprstuvwxyz");
   glcd.drawstring(0, 7, "-7 abcdefghijklmnoprstuvwxyz");
+
+  waitMsg("glcd.display");
   glcd.display();
 
-   // draw a single pixel
-  glcd.setpixel(10, 10, BLACK);
-  glcd.display();        // show the changes to the buffer
-  delay(2000);
+  waitMsg("glcd.clear");
   glcd.clear();
+
+  waitMsg("glcd.display");
+  glcd.display();
+  
+  // draw a rectangle
+  waitMsg("rectangle: 8,8,112,42");
+  glcd.clear();
+  glcd.drawrect(8,8,112,42,BLACK);
+  glcd.display();
+  
+  waitMsg("rectangle: 0,0,128,64");
+  glcd.clear();
+  glcd.drawrect(0,0,128,64,BLACK);
+  glcd.display();
+  
+  
+  // draw a single pixel
+
+  for (i=0; i<128; i+=8) {
+    for (j=0; j<64; j+=8) {
+      sprintf(s, "Drawing a pixel at x=%i y=%i", i, j);
+      waitMsg(s);
+      glcd.clear();
+      glcd.display();
+      glcd.setpixel(i, j, BLACK);
+      glcd.display();        // show the changes to the buffer
+    }
+  }
+
+  waitMsg("Now run");
 
   // draw many lines
   testdrawline();
