@@ -234,16 +234,16 @@ void setup() {
   glcd.clear();
 
   waitMsg("glcd.drawstring(0, 0, \"0123456789\")");
-  glcd.drawstring(0, 0, "0123456789");
+  glcd.drawstring(0, 0, "0123456789", FONT_BIG);
 
   waitMsg("glcd.display()");
   glcd.display();
   delay(2000);
 
   waitMsg("glcd.drawstring at rows 1, 4, and 7");
-  glcd.drawstring(0, 1, "-1 abcdefghijklmnoprstuvwxyz");
-  glcd.drawstring(0, 4, "-4 abcdefghijklmnoprstuvwxyz");
-  glcd.drawstring(0, 7, "-7 abcdefghijklmnoprstuvwxyz");
+  glcd.drawstring(0, 2, "2 abcdefghijklmnopqrstuvwxyz", FONT_BIG);
+  glcd.drawstring(0, 6, "6 ABCDEFGHIJKLMNOPQRSTUVWXYZ", FONT_BIG);
+
 
   waitMsg("glcd.display");
   glcd.display();
@@ -268,16 +268,16 @@ void setup() {
   
   // draw a single pixel
 
-  for (i=0; i<128; i+=8) {
-    for (j=0; j<64; j+=8) {
-      sprintf(s, "Drawing a pixel at x=%i y=%i", i, j);
-      waitMsg(s);
-      glcd.clear();
-      glcd.display();
-      glcd.setpixel(i, j, BLACK);
-      glcd.display();        // show the changes to the buffer
-    }
-  }
+  // for (i=0; i<128; i+=8) {
+  //   for (j=0; j<64; j+=8) {
+  //     // sprintf(s, "Drawing a pixel at x=%i y=%i", i, j);
+  //     // waitMsg(s);
+  //     glcd.clear();
+  //     glcd.display();
+  //     glcd.setpixel(i, j, BLACK);
+  //     glcd.display();        // show the changes to the buffer
+  //   }
+  // }
 
   waitMsg("Now run");
 

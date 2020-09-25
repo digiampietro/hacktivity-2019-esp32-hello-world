@@ -36,6 +36,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define LCDWIDTH 128
 #define LCDHEIGHT 64
 
+#define FONT_SMALL  0
+#define FONT_MEDIUM 1
+#define FONT_BIG    2
+
 #define CMD_DISPLAY_OFF   0xAE
 #define CMD_DISPLAY_ON    0xAF
 
@@ -105,7 +109,9 @@ class ST7565 {
   void drawline(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1, 
 		uint8_t color);
   void drawchar(uint8_t x, uint8_t line, char c);
+  void drawchar(uint8_t x, uint8_t line, char c, uint8_t fontsize);
   void drawstring(uint8_t x, uint8_t line, char *c);
+  void drawstring(uint8_t x, uint8_t line, char *c, uint8_t fontsize);
   void drawstring_P(uint8_t x, uint8_t line, const char *c);
 
   void drawbitmap(uint8_t x, uint8_t y, 
