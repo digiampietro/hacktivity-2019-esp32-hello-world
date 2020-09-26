@@ -209,7 +209,6 @@ void setup() {
   pinMode(MYLED, OUTPUT);
   Serial.begin(115200);
   delay(100);
-  waitKey();
   Serial.println("ESP32 Starting");
 
   pinMode(PIN_I2C_INT, INPUT);
@@ -218,86 +217,54 @@ void setup() {
   // i2cScan();
   // Serial.println("dispInit");
   //dispInit();
-  waitMsg("ledOff;setBl");
+  // waitMsg("ledOff;setBl");
   ledOff();
   setBl(250);
 
   // initialize and set the contrast to 0x18
-  waitMsg("glcd.ic2begin");
+  // waitMsg("glcd.ic2begin");
   glcd.i2cbegin(0x18);
   
-  Serial.println("glcd.display, press a key");
-  waitKey();
+  // Serial.println("glcd.display, press a key");
+  // waitKey();
   glcd.display(); // show splashscreen
+  delay(1000);
 
-  waitMsg("glcd.clear");
+  // waitMsg("glcd.clear");
   glcd.clear();
-
-  waitMsg("glcd.drawstring(0, 0, \"0123456789\")");
-  glcd.drawstring(0, 0, "0123456789", FONT_BIG);
-
-  waitMsg("glcd.display()");
+  glcd.drawstring(30, 1, "Hello",  FONT_BIG);
+  glcd.drawstring(27, 3, "World!", FONT_BIG);
+  glcd.drawstring(43, 5, "Hello",  FONT_SMALL);
+  glcd.drawstring(41, 6, "World!", FONT_SMALL);
   glcd.display();
   delay(2000);
-
-  waitMsg("glcd.drawstring at rows 1, 4, and 7");
-  glcd.drawstring(0, 2, "2 abcdefghijklmnopqrstuvwxyz", FONT_BIG);
-  glcd.drawstring(0, 6, "6 ABCDEFGHIJKLMNOPQRSTUVWXYZ", FONT_BIG);
-
-
-  waitMsg("glcd.display");
-  glcd.display();
-
-  waitMsg("glcd.clear");
-  glcd.clear();
-
-  waitMsg("glcd.display");
-  glcd.display();
-  
-  // draw a rectangle
-  waitMsg("rectangle: 8,8,112,42");
-  glcd.clear();
-  glcd.drawrect(8,8,112,42,BLACK);
-  glcd.display();
-  
-  waitMsg("rectangle: 0,0,128,64");
-  glcd.clear();
-  glcd.drawrect(0,0,128,64,BLACK);
-  glcd.display();
-  
-  
-  // draw a single pixel
-
-  // for (i=0; i<128; i+=8) {
-  //   for (j=0; j<64; j+=8) {
-  //     // sprintf(s, "Drawing a pixel at x=%i y=%i", i, j);
-  //     // waitMsg(s);
-  //     glcd.clear();
-  //     glcd.display();
-  //     glcd.setpixel(i, j, BLACK);
-  //     glcd.display();        // show the changes to the buffer
-  //   }
-  // }
-
-  waitMsg("Now run");
-
-  // draw many lines
-  testdrawline();
-  glcd.display();       // show the lines
-  delay(2000);
-  glcd.clear();
 
   // draw rectangles
-  testdrawrect();
-  glcd.display();
-  delay(2000);
   glcd.clear();
+  for (i=0; i<8; i++) {
+    glcd.drawrect(i*8,i*4,128-(i*16),64-(i*8),BLACK);
+    glcd.display();
+    delay(10);
+  }
+  delay(2000);
 
-  // draw multiple rectangles
-  testfillrect();
-  glcd.display();
-  delay(2000);
+  // draw lines
   glcd.clear();
+  for (i=0; i<16; i++) {
+    glcd.drawline(0, 0, i*8, 64, BLACK);
+    glcd.display();
+    delay(10);
+  }
+  delay(2000);
+
+  // draw circles
+  glcd.clear();
+  for (i=0; i<8; i++) {
+    glcd.drawcircle(63, 31, i*4, BLACK);
+    glcd.display();
+    delay(10);
+  }
+  delay(2000);
 
   // draw mulitple circles
   testdrawcircle();
