@@ -201,8 +201,8 @@ uint8_t st7565_buffer[1024] = {
 // reduces how much is refreshed, which speeds it up!
 // originally derived from Steve Evans/JCW's mod but cleaned up and
 // optimized
-//#define enablePartialUpdate
-#undef enablePartialUpdate
+#define enablePartialUpdate
+//#undef enablePartialUpdate
 #ifdef enablePartialUpdate
 static uint8_t xUpdateMin, xUpdateMax, yUpdateMin, yUpdateMax;
 #endif
@@ -275,6 +275,7 @@ void  ST7565::drawchar(uint8_t x, uint8_t line, char c) {
 }
 
 void  ST7565::drawchar(uint8_t x, uint8_t line, char c, uint8_t fontsize) {
+  uint8_t xsave=x;
   if ((c < 32) or (c > 127)) {
     c=127;
   }
@@ -292,14 +293,17 @@ void  ST7565::drawchar(uint8_t x, uint8_t line, char c, uint8_t fontsize) {
       }
   }
 
-  updateBoundingBox(x, line*(fontsizey[fontsize] + fontspacey[fontsize]), x + fontsizex[fontsize],
-		       line*(fontsizey[fontsize] + fontspacey[fontsize])  + fontsizey[fontsize] + fontspacey[fontsize]);
+  updateBoundingBox(xsave,
+		    line*8,
+		    xsave + fontsizex[fontsize] + fontspacex[fontsize],
+	  	    line*8  + fontsizey[fontsize] + fontspacey[fontsize]);
 }
 
 
 // bresenham's algorithm - thx wikpedia
 void ST7565::drawline(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1, 
 		      uint8_t color) {
+  updateBoundingBox(x0, y0, x1, y1);
   uint8_t steep = abs(y1 - y0) > abs(x1 - x0);
   if (steep) {
     st_swap(x0, y0);
@@ -312,7 +316,6 @@ void ST7565::drawline(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1,
   }
 
   // much faster to put the test here, since we've already sorted the points
-  updateBoundingBox(x0, y0, x1, y1);
 
   uint8_t dx, dy;
   dx = x1 - x0;
@@ -492,6 +495,12 @@ void ST7565::i2cbegin(uint8_t contrast) {
   st7565_i2cinit();
   st7565_command(CMD_DISPLAY_ON);
   st7565_command(CMD_SET_ALLPTS_NORMAL);
+  #ifdef enablePartialUpdate
+  xUpdateMin = 0   ;
+  xUpdateMax = 127 ;
+  yUpdateMin = 0   ;
+  yUpdateMax = 64  ;
+  #endif
   // st7565_set_brightness(contrast);
 }
 
