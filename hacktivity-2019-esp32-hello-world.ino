@@ -1,6 +1,7 @@
 
 #include <Wire.h>
 #include "ST7565-i2c.h"
+#include "SAMD-i2c.h"
 
 // Needed for OTA setup
 #include "ota.h"
@@ -16,6 +17,7 @@
 #define MY_HOSTNAME "hacktivity2019"
 
 ST7565 glcd(DISP_CMD_ADDR, DISP_DAT_ADDR);
+SAMD   samd(SAMD_ADDR);
 
 bool btnUp     = LOW;
 bool btnDown   = LOW;
@@ -209,8 +211,10 @@ void setup() {
   // Serial.println("dispInit");
   //dispInit();
   // waitMsg("ledOff;setBl");
-  ledOff();
-  setBl(250);
+  ////ledOff();
+  ////setBl(250);
+
+  samd.ledsOff();
 
   // initialize and set the contrast to 0x18
   // waitMsg("glcd.ic2begin");
@@ -306,24 +310,35 @@ void loop() {
   ArduinoOTA.handle();
   if ((millis() - lastmillis) > 200) {
     lastmillis = millis();
-    if (not btnLeft) setLed(currled,0,0,0);
+    samd.updateStatus();
+    ////if (not btnLeft) setLed(currled,0,0,0);
+    if (not samd.isDown(BTN_LEFT)) samd.setLed(currled,0,0,0);
     Serial.println("");
     currled = cycle % 6;
     col     = cycle % 3;
-    readSamd();
-    if (btnDown)  col=0;   // Red color
-    if (btnExit)  col=1;   // Blue color
-    if (btnEnter) col=2;   // Green color
+    ////readSamd();
+    ////if (btnDown)  col=0;   // Red color
+    if (samd.isDown(BTN_DOWN))  col=0;
+    ////if (btnExit)  col=1;   // Blue color
+    if (samd.isDown(BTN_EXIT))  col=1;
+    ////if (btnEnter) col=2;   // Green color
+    if (samd.isDown(BTN_ENTER)) col=2;
+
     if (digitalRead(PIN_I2C_INT) == HIGH ) {
       Serial.print("Led: ");
       Serial.print(currled);
       Serial.print(" Color: ");
       Serial.println(col); 
-      if ( col == 0) setLed(currled,1,0,0);
-      if ( col == 1) setLed(currled,0,1,0);
-      if ( col == 2) setLed(currled,0,0,1);
-      if (btnRight) buzz();
-      if (btnUp)    setBl(0); else setBl(250); 
+      ////if ( col == 0) setLed(currled,1,0,0);
+      ////if ( col == 1) setLed(currled,0,1,0);
+      ////if ( col == 2) setLed(currled,0,0,1);
+      if ( col == 0) samd.setLed(currled,1,0,0);
+      if ( col == 1) samd.setLed(currled,0,1,0);
+      if ( col == 2) samd.setLed(currled,0,0,1);
+      ////if (btnRight) buzz();
+      if (samd.isDown(BTN_RIGHT)) samd.buzz();
+      ////if (btnUp)    setBl(0); else setBl(250);
+      if (samd.isDown(BTN_UP)) samd.setBl(0); else samd.setBl(250);
     } else {
       Serial.println("PIN_I2C_INT is disabled");   
     }
