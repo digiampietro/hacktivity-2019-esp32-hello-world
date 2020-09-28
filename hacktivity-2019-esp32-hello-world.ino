@@ -1,16 +1,17 @@
 
 #include <Wire.h>
-#include "ERC12864-10-display.h"
 #include "ST7565-i2c.h"
 
 // Needed for OTA setup
 #include "ota.h"
 
-#define MYLED        21
-#define SAMD_ADDR    0x30
-#define PIN_I2C_INT  25
-#define PIN_SDA      23
-#define PIN_SCL      22
+#define MYLED         21
+#define DISP_CMD_ADDR 0x38
+#define DISP_DAT_ADDR 0x39
+#define SAMD_ADDR     0x30
+#define PIN_I2C_INT   25
+#define PIN_SDA       23
+#define PIN_SCL       22
 
 #define MY_HOSTNAME "hacktivity2019"
 
@@ -22,16 +23,6 @@ bool btnExit   = LOW;
 bool btnEnter  = LOW;
 bool btnLeft   = LOW;
 bool btnRight  = LOW;
-
-
-#define LOGO16_GLCD_HEIGHT 16 
-#define LOGO16_GLCD_WIDTH  16 
-
-// a bitmap of a 16x16 fruit icon
-const static unsigned char __attribute__ ((progmem)) logo16_glcd_bmp[]={
-0x30, 0xf0, 0xf0, 0xf0, 0xf0, 0x30, 0xf8, 0xbe, 0x9f, 0xff, 0xf8, 0xc0, 0xc0, 0xc0, 0x80, 0x00, 
-0x20, 0x3c, 0x3f, 0x3f, 0x1f, 0x19, 0x1f, 0x7b, 0xfb, 0xfe, 0xfe, 0x07, 0x07, 0x07, 0x03, 0x00, };
-
 
 // print dots during the Wifi Connection phase
 
