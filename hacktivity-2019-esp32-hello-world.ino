@@ -2,9 +2,6 @@
 #include "ST7565-i2c.h"
 #include "SAMD-i2c.h"
 
-// Needed for OTA setup
-// #include "ota.h"
-
 #define MYLED         21
 #define DISP_CMD_ADDR 0x38
 #define DISP_DAT_ADDR 0x39
@@ -17,17 +14,11 @@
 
 // display object
 ST7565 glcd(DISP_CMD_ADDR, DISP_DAT_ADDR);
+
 // samd (co-processor) objet
 SAMD   samd(SAMD_ADDR);
 
-// print dots during the Wifi Connection phase
-
-void myProgress () {
-  //  Serial.print(".");
-}
-
-
-// Scan the i2c bus, normally not used
+// Scan the i2c bus, not used
 void i2cScan(void) {
   byte error, address;
   int  nDevices;
@@ -61,27 +52,7 @@ void i2cScan(void) {
   delay(5000);          
 }
 
-//#define NUMFLAKES 10
-//#define XPOS 0
-//#define YPOS 1
-//#define DELTAY 2
-
-void waitKey(void) {
-  char  c;
-  while (Serial.available() <= 0) {
-    //Serial.print(".");
-  }
-  Serial.println(".");
-    // read the incoming byte:
-  c = Serial.read();
-}
-
-void waitMsg(char msg[]) {
-  Serial.print(msg);
-  Serial.print(" - press a Key ");
-  waitKey();
-}
-
+// wait for the "Enter" button to be pressed
 void waitEnter(void) {
   glcd.drawstring( 0, 7, "Press ENTER to cont.", FONT_SMALL); 
   glcd.display();
@@ -103,8 +74,8 @@ void setup() {
   pinMode(PIN_I2C_INT, INPUT);
   Wire.begin(PIN_SDA, PIN_SCL);
 
-  samd.ledsOff();
-  samd.setBl(250);
+  samd.ledsOff();  // switch off all the leds
+  samd.setBl(250); // switch on the display back light
 
   // initialize and set the contrast to 0x18
   glcd.i2cbegin(0x18);
@@ -113,8 +84,8 @@ void setup() {
   delay(3000);
 
   glcd.clear();
-  glcd.drawstring(30, 1, "Hello",  FONT_BIG);
-  glcd.drawstring(27, 3, "World!", FONT_BIG);
+  glcd.drawstring(30, 0, "Hello",  FONT_BIG);
+  glcd.drawstring(27, 2, "World!", FONT_BIG);
   glcd.drawstring(43, 5, "Hello",  FONT_SMALL);
   glcd.drawstring(41, 6, "World!", FONT_SMALL);
   glcd.drawstring( 0, 7, "Press ENTER to cont.",FONT_SMALL); 
@@ -144,7 +115,8 @@ void setup() {
     glcd.display();
   }
   delay(2000);
-  
+
+  // read button status
   samd.updateStatus();
   glcd.clear();
   // draw a lenghty string
@@ -157,36 +129,27 @@ void setup() {
   
   glcd.clear();
   glcd.display();
-
-  // ------ setup WiFi
-  // setupWifi(MY_HOSTNAME,&myProgress);
-  // Serial.println(" ");
-  // Serial.print("Connected! IP: ");
-  // Serial.println(WiFi.localIP());
-  // ------------------------------
-
-
 }
 
-int     cycle      = 0;
-uint8_t currled    = 0;
-int     lastmillis = 0;
+int     cycle      = 0;  //cycle number
+uint8_t currled    = 0;  //current led to switch on
+int     lastmillis = 0;  //previous millisecond counter
 
 void loop() {
   int     li;
   uint8_t col;
   char    msg[15];
 
-  // ArduinoOTA.handle();
   if ((millis() - lastmillis) > 200) {
     lastmillis = millis();
 
     // get info on touch button pressed
     samd.updateStatus();
 
+    // switch off the previous cycle currled
     if (not samd.isDown(BTN_LEFT)) samd.setLed(currled,0,0,0);
 
-    Serial.println(" ");
+    Serial.println("");
     currled = cycle % 6;
     col     = cycle % 3;
 
@@ -201,15 +164,11 @@ void loop() {
     if (samd.isDown(BTN_ENTER)) col=2;
 
     if (digitalRead(PIN_I2C_INT) == HIGH ) {
-      Serial.print("Led: ");
-      Serial.print(currled);
-      Serial.print(" Color: ");
-      Serial.println(col); 
       if ( col == 0) samd.setLed(currled,1,0,0);
       if ( col == 1) samd.setLed(currled,0,1,0);
       if ( col == 2) samd.setLed(currled,0,0,1);
       if (samd.isDown(BTN_RIGHT)) samd.buzz();
-      if (samd.isDown(BTN_UP)) samd.setBl(0); else samd.setBl(250);
+      if (samd.isDown(BTN_UP))    samd.setBl(0); else samd.setBl(250);
     } else {
       Serial.println("PIN_I2C_INT is disabled");   
     }

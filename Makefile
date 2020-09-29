@@ -122,17 +122,6 @@ compile: $(ELF)
 
 $(ELF): $(SRC) $(HDRS)
 	arduino-cli compile -b $(FQBN) $(VFLAG)
-	@if which arduino-manifest.pl; \
-	then echo "---> Generating manifest.txt"; \
-	arduino-manifest.pl -b $(FQBN) $(SRC) $(HDRS) > manifest.txt.new; \
-	if diff manifest.txt manifest.txt.new > /dev/null; \
-	then echo "---> manifest.txt is up to date (has not changed)"; \
-	rm -f manifest.txt.new; \
-	else mv -f manifest.txt.new manifest.txt; \
-	fi; \
-	else echo "---> If you want to generate manifest.txt, listing used libraries and their versions,"; \
-	echo "---> please install arduino-manifest, see https://github.com/digiampietro/arduino-manifest"; \
-	fi
 
 upload:
 	@if [ ! -c $(SERIAL_DEV) ] ; \
