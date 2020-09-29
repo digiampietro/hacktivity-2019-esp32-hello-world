@@ -59,7 +59,7 @@ void waitEnter(void) {
   while (not samd.isReleased(BTN_ENTER)) {
     samd.updateStatus();
   }
-  samd.buzz();
+  samd.buzz(1000,100);
 }
 
 void setup() {
@@ -102,8 +102,8 @@ void setup() {
 
   // draw lines
   glcd.clear();
-  for (i=0; i<16; i++) {
-    glcd.drawline(0, 0, i*8, 64, BLACK);
+  for (i=0; i<8; i++) {
+    glcd.drawline(0, 0, i*16, 64, BLACK);
     glcd.display();
   }
   delay(2000);
@@ -149,16 +149,10 @@ void loop() {
     // switch off the previous cycle currled
     if (not samd.isDown(BTN_LEFT)) samd.setLed(currled,0,0,0);
 
-    Serial.println("");
+    // Serial.println(" ");
     currled = cycle % 6;
     col     = cycle % 3;
 
-    if (currled == 0) {
-      sprintf(msg,"STEP: %5d", cycle / 6);
-      glcd.drawstring(0,0,msg,FONT_BIG);
-      glcd.display();
-    }
-    
     if (samd.isDown(BTN_DOWN))  col=0;
     if (samd.isDown(BTN_EXIT))  col=1;
     if (samd.isDown(BTN_ENTER)) col=2;
@@ -167,8 +161,13 @@ void loop() {
       if ( col == 0) samd.setLed(currled,1,0,0);
       if ( col == 1) samd.setLed(currled,0,1,0);
       if ( col == 2) samd.setLed(currled,0,0,1);
-      if (samd.isDown(BTN_RIGHT)) samd.buzz();
+      if (samd.isDown(BTN_RIGHT)) samd.buzz(1000,100);
       if (samd.isDown(BTN_UP))    samd.setBl(0); else samd.setBl(250);
+      if (currled == 0) {
+	sprintf(msg,"STEP: %5d", cycle / 6);
+	glcd.drawstring(0,2,msg,FONT_BIG);
+	glcd.display();
+      }
     } else {
       Serial.println("PIN_I2C_INT is disabled");   
     }

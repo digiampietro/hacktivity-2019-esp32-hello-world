@@ -31,9 +31,10 @@ void SAMD::updateStatus(void) {
   c2=Wire.read();
 }
 
+// without parameter plays 1024Hz for 256ms
 bool SAMD::buzz(void) {
   uint8_t c = 0x03;
-  uint8_t z = 0x00;
+  //uint8_t z = 0x00;
   uint8_t fh = 4;
   uint8_t fl = 0;
   uint8_t dh = 1;
@@ -48,6 +49,25 @@ bool SAMD::buzz(void) {
   error = Wire.endTransmission();
   return (error == 0);
 }
+
+bool SAMD::buzz(uint16_t freq, uint16_t time) {
+  uint8_t c = 0x03;
+  //uint8_t z = 0x00;
+  uint8_t fh = highByte(freq);
+  uint8_t fl = lowByte(freq);
+  uint8_t dh = highByte(time);
+  uint8_t dl = lowByte(time);;
+  uint8_t error;
+  Wire.beginTransmission(addr);
+  Wire.write(c);
+  Wire.write(fh);
+  Wire.write(fl);
+  Wire.write(dh);
+  Wire.write(dl);
+  error = Wire.endTransmission();
+  return (error == 0);
+}
+
 
 bool SAMD::ledsOff(void) {
   uint8_t c = 0x04;

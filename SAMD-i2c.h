@@ -23,6 +23,7 @@ class SAMD {
   void updateStatus(void);
 
   bool buzz(void);
+  bool buzz(uint16_t freq, uint16_t time);
   bool ledsOff(void);
   bool setBl(uint8_t blstatus);
   bool setLed(uint8_t id, uint8_t r, uint8_t g, uint8_t b);
