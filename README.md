@@ -1,6 +1,6 @@
 # About
 
-In this repository you will find much more than a simple "Hello World"
+In this repository, you will find much more than a simple "Hello World"
 program for the
 [Hacktivity 2019 badge](https://hacktivity.com/index.php/badge/) based
 on the Espressif ESP32 powerful microcontroller.
@@ -10,7 +10,7 @@ You will find:
 * a library to manage the display;
 
 * a library to talk to the SAMD21 co-processor to light on board RGB
-  LEDs, to play sounds on the buzzer and to read the touch buttons;
+  LEDs, to play sounds on the buzzer, and to read the touch buttons;
 
 * a sample program
   ([hacktivity-2019-esp32-hello-world.ino](./hacktivity-2019-esp32-hello-world.ino))
@@ -18,7 +18,7 @@ You will find:
 
   * writing text to the display using big and small fonts;
 
-  * drawing lines, rectangles and circles on the display;
+  * drawing lines, rectangles, and circles on the display;
 
   * lighting LEDs on the board;
 
@@ -28,7 +28,7 @@ You will find:
 
 # Very Important
 
-But first you have to replace the firmware on the ARM based Atmel
+But first, you have to replace the firmware on the ARM based Atmel
 SAMD21 co-processor downloading it and following instructions on the
 [Hacktivity 2019 SAMD unofficial firmware](https://github.com/digiampietro/hacktivity-2019-samd-firmware-unofficial)
 GitHub repository.
@@ -44,7 +44,7 @@ the sketch.
   - [Very Important](#very-important)
   - [Table of Content](#table-of-content)
   - [The Hacktivity 2019 badge](#the-hacktivity-2019-badge)
-  - [The ST7565-i2c LCD Arduino library to drive the LCD display](#the-st7565-i2c-lcd-arduino-library-to-drive-the-lcd-display)
+  - [The ST7565-i2c LCD Arduino library](#the-st7565-i2c-lcd-arduino-library-to-drive-the-lcd-display)
     - [How To Use](#how-to-use)
       - [Writing text to the display](#writing-text-to-the-display)
       - [Drawing Lines](#drawing-lines)
@@ -61,7 +61,7 @@ the sketch.
       - [Get the touch buttons state](#get-the-touch-buttons-state)
       - [Switch on a LED and set his color](#switch-on-a-led-and-set-his-color)
       - [Switch off all the LEDs](#switch-off-all-the-leds)
-      - [Switch on or off the display back light](#switch-on-or-off-the-display-back-light)
+      - [Switch on or off the display backlight](#switch-on-or-off-the-display-back-light)
       - [Play a tone on the buzzer](#play-a-tone-on-the-buzzer)
   - [The Makefile](#the-makefile)
 
@@ -76,10 +76,10 @@ communicates with the main ESP32 processor trough the I2C bus.
 
 On the
 [above](https://github.com/digiampietro/hacktivity-2019-samd-firmware-unofficial)
-repository you will find detailed information on this board, including
-connectors pinout and block diagram.
+repository, you will find detailed information on this board, including
+the connectors pinout and block diagram.
 
-# The ST7565-i2c LCD Arduino library to drive the LCD display
+# The ST7565-i2c LCD Arduino library
 
 The Hacktivity 2019 badge has an ERC12864-10 display that uses the
 ST7565 chip to drive it. Arduino has some libraries able to drive this
@@ -87,7 +87,7 @@ LCD display, but, unfortunately, none of them includes support for the
 I2C bus; they support the more popular SPI bus connection, but, in our
 board, the display is connected through the I2C serial bus.
 
-To solve this issue I downladed a very old
+To solve this issue I downloaded a very old
 [Adafruit ST7565 library](https://github.com/adafruit/ST7565-LCD),
 supporting the SPI bus and modified it to support the I2C serial bus
 and did some other modifications:
@@ -109,7 +109,7 @@ reside in the same directory as the main Arduino sketch:
 
 ## How To Use
 
-First you have to include the header file on your Arduino sketch and
+First, you have to include the header file on your Arduino sketch and
 the Wire library header file, needed to use the I2C bus:
 
 ```
@@ -165,8 +165,8 @@ glcd.display();
 ### Writing text to the display
 
 The library functions to write text consider the display having one
-horizonal coordinate (*x*) with a 1 pixel resolution, ranging from 0
-to 127 and one vertical coordinate (*line*) with an 8 pixel resolution
+horizontal coordinate (*x*) with a 1-pixel resolution, ranging from 0
+to 127 and one vertical coordinate (*line*) with an 8-pixel resolution
 ranging from 0 to 7 that gives 8 text lines using the small font.
 
 Please note that the big font will use two adjacent vertical lines.
@@ -181,7 +181,7 @@ void drawstring(uint8_t x, uint8_t line, char *c, uint8_t fontsize);
 
 **line** is the vertical position, ranging from 0 to 7;
 
-***c** is a null terminated string;
+***c** is a null-terminated string;
 
 **fontsize** can be FONT\_SMALL or FONT\_BIG. With FONT\_SMALL you can
   have 8 lines of 21 characters per line; with FONT\_BIG you can have
@@ -235,9 +235,9 @@ void drawrect(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t color);
 
 Where
 
-**x**, **y** are the top left corner of the rectangle;
+**x** and **y** are the top left corner of the rectangle;
 
-**w**, **h** are the width and heigh of the rectangle in pixels;
+**w** and **h** are the width and height of the rectangle in pixels;
 
 **color** in a monochrome display is usually BLACK;
 
@@ -314,7 +314,7 @@ To clear the display buffer there is the function *clear*:
 void clear();
 ```
 
-This clear the buffer only, to clear also the displa you have to use
+This clears the buffer only, to clear also the display you have to use
 the *display* function, as in the following example:
 
 ```
@@ -340,26 +340,26 @@ glcd.display();
 
 # The SAMD-i2c LCD Arduino library to talk to the co-processor
 
-In this board the main processor, the ESP32, talks to the SAMD21
+In this board, the main processor, the ESP32, talks to the SAMD21
 co-processor using the I2C serial bus.
 
-LEDs, touch buttons and the buzzer are connected to the SAMD21
+LEDs, touch buttons, and the buzzer are connected to the SAMD21
 co-processor, this means that the ESP32 processor has to talk to the
 SAMD21 co-processor to interact with these peripherals. To do so there
 is a simple I2C protocol (details on the
-[SAMD21 firmware repostiory](https://github.com/digiampietro/hacktivity-2019-samd-firmware-unofficial))
+[SAMD21 firmware repository](https://github.com/digiampietro/hacktivity-2019-samd-firmware-unofficial))
 that is encapsulated in the *SAMD-i2c* library.
 
 This library is implemented in two files on this repository that
 reside in the same directory as the main Arduino sketch:
 
-* a heade file [SAMD-i2c.h](./SAMD-i2c.h)
+* a header file [SAMD-i2c.h](./SAMD-i2c.h)
 
 * a c++ file [SAMD-i2c.cpp](./SAMD-i2c.cpp)
 
 ## How To Use
 
-First you have to include the header file on you Arduino sketch and
+First, you have to include the header file on you Arduino sketch and
 the Wire library header file, needed to use the I2C bus:
 
 ```
@@ -438,7 +438,7 @@ was not pressed on the previous state: it has just changed state;
 bool isReleased(uint8_t btn);
 ```
 
-*isReleased* return true if the button *btn* is curently not pressed,
+*isReleased* return true if the button *btn* is currently not pressed,
 but was pressed on the previous state: it has just changed state.
 
 Example usage:
@@ -471,7 +471,7 @@ intensity, 255 lower intensity;
 intensity, 255 lower intensity;
 
 **returned value** is *False* in case of I2C communication errors,
-  otherwise is *True*
+  otherwise it is *True*
 
 Example usage to set the LED number 4 to GREEN color, maximum
 intensity:
@@ -488,9 +488,9 @@ To switch off all the LEDs with a single function call:
 samd.ledsOff();
 ```
 
-### Switch on or off the display back light
+### Switch on or off the display backlight
 
-To switch on or off the display back ligth there is the funcion *setBl*:
+To switch on or off the display backlight there is the function *setBl*:
 
 ```
 bool setBl(uint8_t blstatus);
@@ -498,14 +498,14 @@ bool setBl(uint8_t blstatus);
 
 where:
 
-**blstatus** is the back light intensity: *0* swtichd off, *255*
+**blstatus** is the backlight intensity: *0* switched off, *255*
   maximum intensity;
 
 
 **returned value** is *False* in case of I2C communication errors,
   otherwise is *True*;
 
-example usage to set display back light near the maximum intensity:
+example usage to set display backlight near the maximum intensity:
 
 ```
 samd.setBl(250);
