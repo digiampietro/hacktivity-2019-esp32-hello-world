@@ -79,6 +79,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define CMD_NOP  0xE3
 #define CMD_TEST  0xF0
 
+const uint8_t fontsizex[]={5, 7, 10};
+const uint8_t fontsizey[]={7, 9, 15};
+const uint8_t fontspacex[]={1, 1, 1};
+const uint8_t fontspacey[]={1, 1, 1};
+
+
+
 class ST7565 {
  public:
   ST7565(int8_t SID, int8_t SCLK, int8_t A0, int8_t RST, int8_t CS) :sid(SID), sclk(SCLK), a0(A0), rst(RST), cs(CS), i2c(0) {}
@@ -112,6 +119,7 @@ class ST7565 {
   void drawchar(uint8_t x, uint8_t line, char c, uint8_t fontsize);
   void drawstring(uint8_t x, uint8_t line, char *c);
   void drawstring(uint8_t x, uint8_t line, char *c, uint8_t fontsize);
+  void negativeline(uint8_t line);
   void drawstring_P(uint8_t x, uint8_t line, const char *c);
 
   void drawbitmap(uint8_t x, uint8_t y, 

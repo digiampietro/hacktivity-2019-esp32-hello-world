@@ -57,10 +57,6 @@ const extern uint8_t PROGMEM font7x9[];
 const extern uint8_t PROGMEM font10x15[];
 const uint8_t *font = font5x7;
 
-const uint8_t fontsizex[]={5, 7, 10};
-const uint8_t fontsizey[]={7, 9, 15};
-const uint8_t fontspacex[]={1, 1, 1};
-const uint8_t fontspacey[]={1, 1, 1};
 
 uint8_t st7565_buffer[1024] = { 
 0X00,0X00,0X00,0X00,0X00,0X0C,0X00,0X06,0X00,0X02,0X01,0X00,0X00,0X00,0X00,0X00,
@@ -267,6 +263,13 @@ void ST7565::drawstring_P(uint8_t x, uint8_t line, const char *str) {
     }
     if (line >= (LCDHEIGHT/8))
       return;        // ran out of space :(
+  }
+}
+
+void ST7565::negativeline(uint8_t line) {
+  uint8_t i;
+  for (i=0; i < LCDWIDTH; i++) {
+    st7565_buffer[line*128 + i] = ~st7565_buffer[line*128 + i];
   }
 }
 
@@ -787,3 +790,5 @@ void ST7565::clear_display(void) {
     }     
   }
 }
+
+  

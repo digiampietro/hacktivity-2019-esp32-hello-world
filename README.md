@@ -200,6 +200,21 @@ glcd.drawstring(43, 5, "Hello",  FONT_SMALL);
 glcd.display();
 ```
 
+### Invert a line of text
+
+To bitwise invert a line of text, to highlight it, there is the function:
+
+```
+void negativeline(uint8_t line);
+
+```
+
+an example:
+
+```
+glcd.negativeline(5);
+```
+
 ### Drawing Lines
 
 To draw lines there is the *drawline* function:
