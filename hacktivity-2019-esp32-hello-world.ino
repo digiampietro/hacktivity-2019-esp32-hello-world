@@ -20,7 +20,8 @@ ST7565 glcd(DISP_CMD_ADDR, DISP_DAT_ADDR);
 SAMD   samd(SAMD_ADDR);
 
 
-char *mymenu[8];
+char *mymenu[9];
+bool inloop = false;
 
 // Scan the i2c bus, not used
 void i2cScan(void) {
@@ -81,11 +82,18 @@ void waitEnter(void) {
   glcd.drawstring( 0, 7, "Press ENTER to cont.", FONT_SMALL); 
   glcd.display();
   while (not samd.isPressed(BTN_ENTER)) {
+    doLoopActions();
     samd.updateStatus();
   }
   samd.buzz(1000,100);
 }
 
+//
+void doLoopActions(void) {
+  if (inloop) {
+    ArduinoOTA.handle();
+  }
+}
 
 // nitems: maximum index of items (number of items minus 1)
 
@@ -112,7 +120,7 @@ int fullmenu(uint8_t nitems, char *items[], uint8_t fontsize) {
   
   samd.updateStatus();
   while (samd.isUp(BTN_ENTER)) {  // exit from the loop when ENTER is pressed
-    delay(20);
+    //delay(20);
     samd.updateStatus();
     notpressed=true;
     Serial.println("---> inside while loop");
@@ -132,6 +140,7 @@ int fullmenu(uint8_t nitems, char *items[], uint8_t fontsize) {
     glcd.display();
 
     while (notpressed) {
+      doLoopActions();
       if (samd.isPressed(BTN_DOWN)) {
 	notpressed=false;
 	dselect++;
@@ -161,7 +170,7 @@ int fullmenu(uint8_t nitems, char *items[], uint8_t fontsize) {
 	Serial.println("---> Exit Button pressed fullmenu returning -1");
 	return -1;
       } else {
-	delay(20);
+	// delay(20);
 	samd.updateStatus();
       }
     }
@@ -178,6 +187,7 @@ void drawRectangles(void) {
   for (i=0; i<8; i++) {
     glcd.drawrect(i*8,i*4,128-(i*16),64-(i*8),BLACK);
     glcd.display();
+    doLoopActions();
   }
 }
 
@@ -187,6 +197,7 @@ void drawLines(void) {
   for (i=0; i<8; i++) {
     glcd.drawline(0, 0, i*16, 64, BLACK);
     glcd.display();
+    doLoopActions();
   }
 }
 
@@ -196,6 +207,7 @@ void drawCircles(void) {
   for (i=0; i<8; i++) {
     glcd.drawcircle(63, 31, i*4, BLACK);
     glcd.display();
+    doLoopActions();
   }
 }
 
@@ -260,6 +272,7 @@ void setup() {
   mymenu[5]="LCD Light";
   mymenu[6]="Contrast";
   mymenu[7]="WiFi Info";
+  mymenu[8]="Restart";
   
   pinMode(MYLED, OUTPUT);
   Serial.begin(115200);
@@ -284,7 +297,6 @@ void setup() {
   glcd.clear();
 
   setupOTA("hacktivity");
-
   
   // // draw a lenghty string
   // glcd.drawstring(0, 0, "The quick",   FONT_BIG);
@@ -356,15 +368,15 @@ void loop() {
   static int bl       = 250;  // LCD Backlight
   static int contrast = 0x20;
 
-  ArduinoOTA.handle();
-  
+  inloop = true;
+  doLoopActions();
   if ((millis() - lastmillis) > 200) {
     lastmillis = millis();
 
     // get info on touch button pressed
     samd.updateStatus();
     if (status == 0) {
-      m=fullmenu(7, mymenu, FONT_BIG);
+      m=fullmenu(8, mymenu, FONT_BIG);
       samd.updateStatus();
       switch (m) {
       case 0: drawRectangles();
@@ -394,6 +406,8 @@ void loop() {
 	break;
       case 7: drawWiFiInfo();
 	waitEnter();
+	break;
+      case 8: ESP.restart();
 	break;
       }
       status = 1;

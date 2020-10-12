@@ -504,7 +504,7 @@ void ST7565::i2cbegin(uint8_t contrast) {
   yUpdateMin = 0   ;
   yUpdateMax = 64  ;
   #endif
-  // st7565_set_brightness(contrast);
+  st7565_set_brightness(contrast);
 }
 
 
