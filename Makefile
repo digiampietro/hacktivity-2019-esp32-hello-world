@@ -69,7 +69,7 @@ MAKE_DIR   := $(PWD)
 #
 # ----- setup wor ESP32
 FQBN       ?= esp32:esp32:esp32
-IOT_NAME   ?= hacktivity
+IOT_NAME   ?= hacktivity-b21c8c
 OTA_PORT   ?= 3232
 OTA_PASS   ?=
 # ----- setup for Arduino Uno
@@ -134,7 +134,7 @@ ota:
 	@PLAT_PATH=`arduino-cli compile -b $(FQBN) --show-properties | grep '^runtime.platform.path' | awk -F= '{print $$2}'` ; \
 	   PY_PATH=`arduino-cli compile -b $(FQBN) --show-properties | grep '^runtime.tools.python3.path' | awk -F= '{print $$2}'` ; \
 	IOT_IP=`avahi-browse _arduino._tcp --resolve --parsable --terminate|grep -i ';$(IOT_NAME);'|grep ';$(OTA_PORT);'| awk -F\; '{print $$8}'|head -1`; \
-	BINFILE=$(wildcard $(BUILD_DIR)/$(SRCINO)*bin); \
+	BINFILE=$(BIN); \
 	echo "PLAT_PATH  is [$$PLAT_PATH]" ; \
 	echo "PY_PATH:   is [$$PY_PATH]"  ; \
 	echo "IOT_IP:    is [$$IOT_IP]"   ; \
@@ -144,6 +144,13 @@ ota:
 	else echo "---> Uploading Over The Air"; \
 	$$PY_PATH/python3 $$PLAT_PATH/tools/espota.py -i $$IOT_IP -p $(OTA_PORT) --auth=$(OTA_PASS) -f $$BINFILE ;\
 	fi
+
+#python /home/valerio/.arduino15/packages/esp32/hardware/esp32/1.0.4/tools/espota.py -i 192.168.2.36 -p 3232 --auth= -f /tmp/arduino_build_960472/BasicOTA.ino.bin 
+
+
+#python /home/valerio/.arduino15/packages/esp32/tools/esptool_py/2.6.1/esptool.py --chip esp32 elf2image --flash_mode dio --flash_freq 80m --flash_size 4MB -o /tmp/arduino_build_960472/BasicOTA.ino.bin /tmp/arduino_build_960472/BasicOTA.ino.elf
+
+
 
 clean:
 	@echo "---> Cleaning the build directory"

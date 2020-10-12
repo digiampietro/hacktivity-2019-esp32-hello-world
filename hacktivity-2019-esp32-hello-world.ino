@@ -1,6 +1,7 @@
 #include <Wire.h>
 #include "ST7565-i2c.h"
 #include "SAMD-i2c.h"
+#include "OTA.h"
 
 #define MYLED         21
 #define DISP_CMD_ADDR 0x38
@@ -19,7 +20,7 @@ ST7565 glcd(DISP_CMD_ADDR, DISP_DAT_ADDR);
 SAMD   samd(SAMD_ADDR);
 
 
-char *mymenu[7];
+char *mymenu[8];
 
 // Scan the i2c bus, not used
 void i2cScan(void) {
@@ -119,10 +120,10 @@ int fullmenu(uint8_t nitems, char *items[], uint8_t fontsize) {
     Serial.println(s);
     glcd.clear();
     for (i=dstart; i <= dend; i++) {
-      sprintf(s,"---> i: %d, param2: %d", i, (i-dstart)*linesize);
+      sprintf(s,"---> i: %d, param2: %d fontsize: %d", i, (i-dstart)*linesize, fontsize);
       Serial.println(s);
-      glcd.drawstring(0, (i-dstart)*linesize, items[i], fontsize);
       Serial.println(items[i]);
+      glcd.drawstring(0, (i-dstart)*linesize, items[i], fontsize);
     }
     
     for (i=0; i<linesize; i++) {   // invert selected line  
@@ -207,6 +208,45 @@ void drawText(void) {
   glcd.display();
 }
 
+void drawWiFiInfo(void) {
+  char      s[31];
+  char      *c;
+  uint8_t   mac[6];
+  int       i;
+  
+  glcd.clear();
+  glcd.drawstring(0,0, "SSID:", FONT_SMALL);
+  WiFi.SSID().toCharArray(s,30);
+  glcd.drawstring(0,1, s, FONT_SMALL);
+  Serial.print("--->WiFiInfo SSID  ");
+  Serial.println(s);
+		     
+  glcd.drawstring(0,2, "IP:", FONT_SMALL);
+  WiFi.localIP().toString().toCharArray(s,16);
+  glcd.drawstring(24,2, s, FONT_SMALL);
+  Serial.print("--->WiFiInfo IP: ");
+  Serial.println(s);
+  
+  // non funziona
+  // glcd.drawstring(0,3, "Hostname:", FONT_SMALL);
+  // memcpy(s,WiFi.getHostname(),30);
+  // glcd.drawstring(0,4, s, FONT_SMALL);
+  
+  glcd.drawstring(0,3, "MAC Address:", FONT_SMALL);
+  WiFi.macAddress(mac);
+  s[0]=0;
+  c="";
+  for (i=0; i<6; i++) {
+    sprintf(s,"%s%s%2X",s,c,mac[i]);
+    c=":";
+  }
+  glcd.drawstring(0,4,s,FONT_SMALL);
+
+  glcd.display();
+
+}
+  
+  
 
 void setup() {
   int i, j;
@@ -219,6 +259,7 @@ void setup() {
   mymenu[4]="I2C scan";
   mymenu[5]="LCD Light";
   mymenu[6]="Contrast";
+  mymenu[7]="WiFi Info";
   
   pinMode(MYLED, OUTPUT);
   Serial.begin(115200);
@@ -241,17 +282,21 @@ void setup() {
   // read button status
   samd.updateStatus();
   glcd.clear();
-  // draw a lenghty string
-  glcd.drawstring(0, 0, "The quick",   FONT_BIG);
-  glcd.drawstring(0, 2, "brown fox",   FONT_BIG);
-  glcd.drawstring(0, 4, "jumps over",  FONT_SMALL);
-  glcd.drawstring(0, 5, "the lazy dog",FONT_SMALL);
-  glcd.negativeline(5);
-  // glcd.negativeline(3);
-  glcd.display();
-  waitEnter();
+
+  setupOTA("hacktivity");
+
   
-  glcd.clear();
+  // // draw a lenghty string
+  // glcd.drawstring(0, 0, "The quick",   FONT_BIG);
+  // glcd.drawstring(0, 2, "brown fox",   FONT_BIG);
+  // glcd.drawstring(0, 4, "jumps over",  FONT_SMALL);
+  // glcd.drawstring(0, 5, "the lazy dog",FONT_SMALL);
+  // glcd.negativeline(5);
+  // // glcd.negativeline(3);
+  // glcd.display();
+  // waitEnter();
+  
+  // glcd.clear();
   glcd.display();
 }
 
@@ -307,17 +352,19 @@ void loop() {
   int     li,m;
   uint8_t col;
   char    msg[15];
-  static int status   = 0;    // 0: display menu
+  static int status   = 1;    // 0: display menu
   static int bl       = 250;  // LCD Backlight
   static int contrast = 0x20;
 
+  ArduinoOTA.handle();
+  
   if ((millis() - lastmillis) > 200) {
     lastmillis = millis();
 
     // get info on touch button pressed
     samd.updateStatus();
     if (status == 0) {
-      m=fullmenu(6, mymenu, FONT_BIG);
+      m=fullmenu(7, mymenu, FONT_BIG);
       samd.updateStatus();
       switch (m) {
       case 0: drawRectangles();
@@ -345,12 +392,17 @@ void loop() {
 	Serial.println(bl);
 	mysetContrast(contrast);
 	break;
+      case 7: drawWiFiInfo();
+	waitEnter();
+	break;
       }
       status = 1;
       glcd.clear();
       glcd.drawstring(0,7,"Press RIGHT for menu",FONT_SMALL);
     }
 
+    if (cycle == 0 ) glcd.drawstring(0,7,"Press RIGHT for menu",FONT_SMALL);
+    
     // switch off the previous cycle currled
     if (not samd.isDown(BTN_LEFT)) samd.setLed(currled,0,0,0);
 
